@@ -1,0 +1,80 @@
+@import url('https://fonts.googleapis.com/css2?family=BBH+Bartle&family=Edu+NSW+ACT+Cursive:wght@400..700&family=Source+Sans+3:ital,wght@0,200..900;1,200..900&display=swap');
+
+body {
+    margin: 0px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 80vh;
+    background-color: rgb(103, 70, 7);
+
+}
+
+.clc {
+    text-align: center;
+    font-size: large;
+    font-family: "BBH Bartle", sans-serif;
+    font-weight: 700;
+
+}
+
+.calculator {
+    background-color: orange;
+    border-radius: 20px;
+    max-width: 300px;
+}
+
+.keys {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    padding: 10px;
+
+}
+
+#display {
+    font-size: 50px;
+    font-weight: 500;
+    width: 86.7%;
+    padding: 20px;
+
+    height: 20px;
+    text-align: right;
+    border: none;
+    background-color: rgb(169, 115, 13);
+}
+
+button {
+    width: 50px;
+    height: 50px;
+    border-radius: 30px;
+    border: none;
+    background-color: rgb(48, 45, 45);
+    color: white;
+    font-weight: bold;
+    font-size: large;
+    font-family: 'Courier New', Courier, monospace;
+
+
+    cursor: pointer;
+
+
+}
+
+button:hover {
+    background-color: rgb(123, 40, 40);
+}
+
+button:active {
+    background-color: black;
+}
+
+button .calculator {
+    text-align: center;
+    justify-content: space-around;
+
+}
+
+.opb {
+    background-color: orangered;
+}
