@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Local Service Finder</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #d362f5 0%, #764ba2 100%);
+            min-height: 100px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .subtitle {
+            font-size: 20px;
+            margin-right: 20px;
+            
+        }
+
+        .search-section {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+
+        .search-bar {
+            display:flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .search-input {
+            flex: 1;
+            min-width: 250px;
+            padding: 15px 20px;
+            border: 2px solid #e1e5e9;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .search-btn {
+            padding: 15px 30px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .search-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .filters {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .filter-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .filter-select {
+            padding: 10px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+        }
+
+        .emergency-toggle {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #fff3cd;
+            padding: 10px 15px;
+            border-radius: 8px;
+            border: 2px solid #ffc107;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 25px;
+            background: #ccc;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: background  0.3s;
+        }
+
+        .toggle-switch.active {
+            background: #ff6b6b;
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 21px;
+            height: 21px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.3s;
+        }
+
+        .toggle-switch.active::after {
+            transform: translateX(25px);
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .service-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .service-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+        }
+
+        .service-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+
+        .service-header {
+            display: flex;
+            align-items: start;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .service-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .service-info h3 {
+            font-size: 1.4rem;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .service-category {
+            color: #667eea;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .rating {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 10px 0;
+        }
+
+        .stars {
+            color: #ffd700;
+            font-size: 18px;
+        }
+
+        .rating-text {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .service-details {
+            margin: 15px 0;
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 8px 0;
+            font-size: 14px;
+        }
+
+        .detail-icon {
+            width: 16px;
+            text-align: center;
+        }
+
+        .badges {
+            display: flex;
+            gap: 8px;
+            margin: 15px 0;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge.emergency {
+            background: #ffe6e6;
+            color: #d63031;
+            border: 1px solid #fab1a0;
+        }
+
+        .badge.verified {
+            background: #e6f7ff;
+            color: #0984e3;
+            border: 1px solid #74b9ff;
+        }
+
+        .badge.discount {
+            background: #e8f5e8;
+            color: #00b894;
+            border: 1px solid #55a3ff;
+        }
+
+        .contact-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            flex: 1;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #f8f9fa;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 60px 20px;
+            color: white;
+        }
+
+        .no-results h3 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .search-bar {
+                flex-direction: column;
+            }
+            
+            .filters {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .services-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔧 Local Service Finder</h1>
+            <p class="subtitle">You find  trusted professionals in your area</p>
+        </header>
+
+        <div class="search-section">
+            <div class="search-bar">
+                <input type="text" class="search-input" id="searchInput" placeholder="Search for services ">
+                <button class="search-btn" onclick="searchServices()">Search</button>
+            </div>
+            
+            <div class="filters">
+                <div class="filter-group">
+                    <label class="filter-label">Category</label>
+                    <select class="filter-select" id="categoryFilter" onchange="filterServices()">
+                        <option value="">All Categories</option>
+                        <option value="plumbing">Plumbing</option>
+                        <option value="electrical">Electrical</option>
+                        <option value="carpentry">Carpentry</option>
+                        <option value="automotive">Automotive</option>
+                        <option value="cleaning">Cleaning</option>
+                        
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label class="filter-label">Rating</label>
+                    <select class="filter-select" id="ratingFilter" onchange="filterServices()">
+                        <option value="">Any Rating</option>
+                        <option value="4.5">4.5+ Stars</option>
+                        <option value="4.0">4.0+ Stars</option>
+                        <option value="3.5">3.5+ Stars</option>
+                    </select>
+                </div>
+                
+               
+            </div>
+        </div>
+
+        <div class="services-grid" id="servicesGrid">
+            
+        </div>
+        
+        <div class="no-results" id="noResults" style="display: none;">
+            <h3>No services found</h3>
+            <p>Try adjusting your search criteria or filters</p>
+        </div>
+    </div>
+
+    <script>
+        const services = [
+            {
+                name: "Bhanu Plumbing Solutions",
+                category: "plumbing",
+                rating: 4.7,
+                reviews: 127,
+                phone: "8074594432",
+                email: "bhanu@plumbingsolutions.com",
+               
+                verified: true,
+                discount: true,
+                experience: "15 years",
+                location: "Bhadradri District",
+                description: "Professional plumbing services with 24/7  support",
+                icon: "🔧",
+                color: "#e64b39"
+            },
+            {
+                name: "Charan's Electric Co.",
+                category: "electrical",
+                rating: 4.9,
+                reviews: 89,
+                phone: "9347735130",
+                email: "charan@electric.com",
+               
+                verified: true,
+                discount: false,
+                experience: "12 years",
+                location: "Khammam District",
+                description: "Licensed electricians for residential and commercial work",
+                icon: "⚡",
+                color: "#e833e8"
+            },
+            {
+                name: "Vishnu's Woodcraft Carpentry",
+                category: "carpentry",
+                rating: 4.7,
+                reviews: 156,
+                phone: "7702340066",
+                email: "vishnu@woodcraft.com",
+                
+                verified: true,
+                discount: true,
+                experience: "20 years",
+                location: "Ranga Reddy District",
+                description: "Skilled in handcrafted furniture and interior remodeling",
+                icon: "🪚",
+                color: "#7495f7"
+            },
+            {
+                name: "Vishruth's Tutorials",
+                category: "tutoring",
+                rating: 4.9,
+                reviews: 203,
+                phone: "9966818969",
+                email: "vishruth@tutorials.com",
+                
+                verified: true,
+                discount: false,
+                experience: "8 years",
+                location: "Any Place",
+                description: "Specialist in every subject, from basics to advanced",
+                icon: "📚",
+                color: "#9b59b6"
+            },
+            {
+                name: "Tendulkar's Janata Garage",
+                category: "automotive",
+                rating: 4.6,
+                reviews: 94,
+                phone: "9014157351",
+                email: "tendul@janatagarage.com",
+                
+                verified: true,
+                discount: true,
+                experience: "18 years",
+                location: "Industrial area in Telangana",
+                description: "Complete automotive repair and maintenance services",
+                icon: "🚗",
+                color: "#34495e"
+            },
+            {
+                name: "Cleaning Services",
+                category: "cleaning",
+                rating: 4.8,
+                reviews: 178,
+                phone: "9182237739",
+                email: "cleaning@services.com",
+                
+                verified: true,
+                discount: false,
+                experience: "10 years",
+                location: "Bhadrachalam",
+                description: "Professional cleaning for homes and offices",
+                icon: "🧽",
+                color: "#f3f70f"
+            },
+            {
+                name: "GreenThumb Landscaping",
+                category: "landscaping",
+                rating: 4.5,
+                reviews: 112,
+                phone: "6302537394",
+                email: "info@greenthumb.com",
+                
+                verified: true,
+                discount: true,
+                experience: "14 years",
+                location: "Area Hospital",
+                description: "Plant & Garden Specialists",
+                icon: "🌿",
+                color: "#35b03b"
+            },
+            {
+                name: "QuickFix Plumbing",
+                category: "plumbing",
+                rating: 4.4,
+                reviews: 67,
+                phone: "9876543210",
+                email: "help@quickfix.com",
+                
+                verified: false,
+                discount: false,
+                experience: "7 years",
+                location: "South of Telangana",
+                description: "Fast and reliable plumbing repairs",
+                icon: "🔧",
+                color: "#0be397"
+            },
+        
+            {
+                name: "PowerLine Electric",
+                category: "electrical",
+                rating: 4.6,
+                reviews: 78,
+                phone: "7702345678",
+                email: "service@powerline.com",
+                
+                verified: true,
+                discount: false,
+                experience: "16 years",
+                location: "West Side of Telangana",
+                description: "Electrical installations and emergency repairs",
+                icon: "⚡",
+                color: "#f39c12"
+            }
+        ];
+
+        let filteredServices = [...services];
+        let emergencyFilter = false;
+
+        function renderServices(servicesToRender) {
+            const grid = document.getElementById('servicesGrid');
+            const noResults = document.getElementById('noResults');
+            
+            if (servicesToRender.length === 0) {
+                grid.style.display = 'none';
+                noResults.style.display = 'block';
+                return;
+            }
+            
+            grid.style.display = 'grid';
+            noResults.style.display = 'none';
+            
+            grid.innerHTML = servicesToRender.map(service => `
+                <div class="service-card">
+                    <div class="service-header">
+                        <div class="service-icon" style="background: ${service.color}">
+                            ${service.icon}
+                        </div>
+                        <div class="service-info">
+                            <h3>${service.name}</h3>
+                            <div class="service-category">${service.category.charAt(0).toUpperCase() + service.category.slice(1)}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="rating">
+                        <span class="stars">${'★'.repeat(Math.floor(service.rating))}${service.rating % 1 !== 0 ? '☆' : ''}</span>
+                        <span class="rating-text">${service.rating} (${service.reviews} reviews)</span>
+                    </div>
+                    
+                    <p>${service.description}</p>
+                    
+                    <div class="service-details">
+                        <div class="detail-item">
+                            <span class="detail-icon">📍</span>
+                            <span>${service.location}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-icon">⏱️</span>
+                            <span>${service.experience} experience</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-icon">📞</span>
+                            <span>${service.phone}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="badges">
+                        ${service.emergency ? '<span class="badge emergency">24/7 Emergency</span>' : ''}
+                        ${service.verified ? '<span class="badge verified">Verified Pro</span>' : ''}
+                        ${service.discount ? '<span class="badge discount">Special Offer</span>' : ''}
+                    </div>
+                    
+                    <div class="contact-buttons">
+                        <button class="btn btn-primary" onclick="callService('${service.phone}')">Call Now</button>
+                        <button class="btn btn-secondary" onclick="emailService('${service.email}')">Email</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function searchServices() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const categoryFilter = document.getElementById('categoryFilter').value;
+            const ratingFilter = parseFloat(document.getElementById('ratingFilter').value) || 0;
+            
+            filteredServices = services.filter(service => {
+                const matchesSearch = !searchTerm || 
+                    service.name.toLowerCase().includes(searchTerm) ||
+                    service.category.toLowerCase().includes(searchTerm) ||
+                    service.description.toLowerCase().includes(searchTerm);
+                
+                const matchesCategory = !categoryFilter || service.category === categoryFilter;
+                const matchesRating = service.rating >= ratingFilter;
+                const matchesEmergency = !emergencyFilter || service.emergency;
+                
+                return matchesSearch && matchesCategory && matchesRating && matchesEmergency;
+            });
+            
+            renderServices(filteredServices);
+        }
+
+        function filterServices() {
+            searchServices();
+        }
+
+        function toggleEmergency() {
+            const toggle = document.getElementById('emergencyToggle');
+            emergencyFilter = !emergencyFilter;
+            toggle.classList.toggle('active', emergencyFilter);
+            searchServices();
+        }
+
+        function callService(phone) {
+            alert(`Calling ${phone}...`);
+        }
+
+        function emailService(email) {
+            alert(`Opening email to ${email}...`);
+        }
+
+        // Initialize the page
+        renderServices(services);
+    </script>
+</body>
+</html>
